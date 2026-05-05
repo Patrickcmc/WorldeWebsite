@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spelcin Wordle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fafaf8;
+      --text: #1a1a1a;
+      --muted: #888;
+      --border: #ddd;
+      --green: #6aaa64;
+      --yellow: #c9b458;
+      --tile-bg: #fff;
+      --tile-border: #d3d6da;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111110;
+        --text: #f0efe8;
+        --muted: #666;
+        --border: #333;
+        --tile-bg: #1c1c1a;
+        --tile-border: #3a3a38;
+      }
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: top;
+      min-height: 100vh;
+      gap: 0;
+      padding: 2rem;
+      padding-top: 12rem;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    header span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+      text-align: center;
+      max-width: 480px;
+    }
+
+    .tiles {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tile {
+      width: 54px;
+      height: 54px;
+      border: 2px solid var(--tile-border);
+      background: var(--tile-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--text);
+      border-radius: 4px;
+      opacity: 0;
+      transform: translateY(10px) scale(0.9);
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tile.revealed {
+      animation: popIn 0.18s ease forwards;
+    }
+
+    .tile.green {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .tile.yellow {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #fff;
+    }
+
+    .tile.grey {
+      background: #787c7e;
+      border-color: #787c7e;
+      color: #fff;
+    }
+
+    @keyframes popIn {
+      0%   { opacity: 0; transform: translateY(10px) scale(0.9); }
+      60%  { opacity: 1; transform: translateY(-3px) scale(1.05); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes flip {
+      0%   { transform: scaleY(1); }
+      50%  { transform: scaleY(0); }
+      100% { transform: scaleY(1); }
+    }
+
+    .tile.flipping {
+      animation: flip 0.5s ease forwards;
+    }
+
+    .copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    h1 {
+      font-family: 'Trebuchet MS';
+      font-size: clamp(2.4rem, 6vw, 3.5rem);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 360px;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto;
+    }
+
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.9rem 2.4rem;
+      background: var(--text);
+      color: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    .play-btn:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+
+    .play-btn:active {
+      transform: translateY(0);
+    }
+
+    .play-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--bg);
+    }
+
+    footer {
+      position: fixed;
+      bottom: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span>SPELCA</span>
+  </header>
+
+  <div class="hero">
+
+    <div class="tiles">
+      <div class="tile" id="t0">S</div>
+      <div class="tile" id="t1">P</div>
+      <div class="tile" id="t2">E</div>
+      <div class="tile" id="t3">L</div>
+      <div class="tile" id="t4">C</div>
+    </div>
+
+    <div class="copy">
+      <h1>Can you guess<br/>the word?</h1>
+      <p class="subtitle">A daily word puzzle. 6 tries to guess the correct word, our word. Made with love - by Patrick ❤️</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <a class="play-btn" href="https://Patrickcmc.pythonanywhere.com" target="_blank">
+      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M3 2l11 6-11 6z"/></svg>
+      PLAY NOW
+    </a>
+
+  </div>
+
+  <footer>© 2026 Patrick d.o.o, Sitemap Privacy Policy, Terms of Service, Cookie Policy</footer>
+
+  <script>
+    const colors = ['grey', 'yellow', 'green', 'green', 'yellow'];
+    const tiles = document.querySelectorAll('.tile');
+
+    tiles.forEach((tile, i) => {
+      setTimeout(() => {
+        tile.classList.add('revealed');
+        setTimeout(() => {
+          tile.classList.add('flipping');
+          setTimeout(() => {
+            tile.classList.add(colors[i]);
+            tile.classList.remove('flipping');
+          }, 250);
+        }, 400);
+      }, i * 120);
+    });
+  </script>
+
+</body>
+</html>
